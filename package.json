@@ -1,0 +1,31 @@
+{
+  "name": "@lost-types/alias-map",
+  "version": "0.1.1",
+  "description": "Alias map data structure",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint --init"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snigo/alias-map.git"
+  },
+  "author": "snigo <snigo.ogins@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/snigo/alias-map/issues"
+  },
+  "homepage": "https://github.com/snigo/alias-map#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.1",
+    "jest": "^25.1.0",
+    "parcel-bundler": "^1.12.4"
+  }
+}
