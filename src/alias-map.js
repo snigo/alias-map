@@ -1,4 +1,6 @@
-import { KeyNode, ValueNode, AliasNode } from './nodes';
+import KeyNode from './keynode';
+import ValueNode from './valuenode';
+import AliasNode from './aliasnode';
 
 /**
  * @class AliasMap
@@ -6,7 +8,7 @@ import { KeyNode, ValueNode, AliasNode } from './nodes';
 class AliasMap extends Map {
   #entriesCount = 0;
 
-   /**
+  /**
    * @property entriesCount: Number of entries made, one entry is
    * a primary key, value and all the aliases associated with key
    */
@@ -35,7 +37,7 @@ class AliasMap extends Map {
    */
   getKey(label) {
     const node = Map.prototype.get.call(this, label);
-    if (!node) return;
+    if (!node) return undefined;
 
     if (node instanceof AliasNode) {
       return node.aliasOf;
@@ -52,7 +54,7 @@ class AliasMap extends Map {
    * @method getAliases Returns all aliases for provided label:
    * key, alias or value
    *
-   * @param {any} label 
+   * @param {any} label
    */
   getAliases(label) {
     const key = this.getKey(label);
@@ -104,7 +106,7 @@ class AliasMap extends Map {
    * @param {...any} aliases
    */
   set(key, value, ...aliases) {
-    if (typeof key === 'undefined' || typeof value === 'undefined') return;
+    if (typeof key === 'undefined' || typeof value === 'undefined') return undefined;
 
     if (this.has(value) && Map.prototype.get.call(this, value).value !== key) {
       throw Error('Cannot set value. Value is already in the AliasMap.');
@@ -138,7 +140,7 @@ class AliasMap extends Map {
   }
 
   setAlias(label, ...aliasList) {
-    if (typeof label === 'undefined' || !aliasList.length) return;
+    if (typeof label === 'undefined' || !aliasList.length) return undefined;
 
     const key = this.getKey(label);
     const keyNode = Map.prototype.get.call(this, key);
