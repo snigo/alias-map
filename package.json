@@ -1,6 +1,6 @@
 {
   "name": "@lost-types/alias-map",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Alias map data structure",
   "main": "./lib/index.js",
   "files": [
