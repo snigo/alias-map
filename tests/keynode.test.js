@@ -22,17 +22,20 @@ test('creating KeyNode class', () => {
 test('setAlias and removeAlias methods', () => {
   const gray = new KeyNode('#808080', 'grey', 'neutral gray');
 
-  expect(gray).toHaveProperty('aliases', ['grey', 'neutral gray']);
-  expect(gray.aliases).toHaveLength(2);
+  expect(gray).toHaveProperty('aliases');
+  expect(gray.aliases.has('grey')).toBe(true);
+  expect(gray.aliases.has('neutral gray')).toBe(true);
+  expect(gray.aliases.size).toBe(2);
 
   const aliases = gray.setAlias('neutral grey');
-  expect(gray).toHaveProperty('aliases', ['grey', 'neutral gray', 'neutral grey']);
+  expect([...gray.aliases]).toEqual(['grey', 'neutral gray', 'neutral grey']);
   expect(aliases).toHaveLength(3);
 
   const successfulRemove = gray.removeAlias('neutral gray');
-  const unsuccessfulRemove = gray.removeAlias('neutral gray');
-  expect(gray.aliases).toHaveLength(2);
   expect(successfulRemove).toBe(true);
+  expect(gray.aliases.size).toBe(2);
+
+  const unsuccessfulRemove = gray.removeAlias('neutral gray');
   expect(unsuccessfulRemove).toBe(false);
 
   gray.removeAlias('neutral grey');
@@ -42,5 +45,5 @@ test('setAlias and removeAlias methods', () => {
   expect(gray.removeAlias('foo')).toBe(false);
 
   gray.setAlias(gray);
-  expect(gray.aliases).toHaveLength(1);
+  expect(gray.aliases.size).toBe(1);
 });

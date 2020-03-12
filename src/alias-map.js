@@ -8,35 +8,35 @@ import AliasNode from './aliasnode';
 class AliasMap extends Map {
   #entriesCount = 0;
 
+
   /**
-   * @property entriesCount: Number of entries made, one entry is
+   * @property entriesCount: Number of entries made, where one entry is
    * a primary key, value and all the aliases associated with key
    */
   get entriesCount() {
     return this.#entriesCount;
   }
 
+
   /**
-   * @method get Gets value by given label: key, alias or value
-   * If value is provided, returns key for that value
-   * @param {any} label
+   * Gets value by given item.
+   * If value is provided, returns primary key for that value
    *
-   * @returns {any} Value of provided label or undefined
+   * @param {any} item Key, alias or value
    */
-  get(label) {
-    const result = Map.prototype.get.call(this, label);
+  get(item) {
+    const result = Map.prototype.get.call(this, item);
     return (result && ('value' in result)) ? result.value : undefined;
   }
 
+
   /**
-   * @method getKey Gets key for provided label: key, alias or value
+   * Gets primary key for provided item
    *
-   * @param {any} label
-   *
-   * @returns {any} Key or undefined if no key found
+   * @param {any} item Key, alias or value
    */
-  getKey(label) {
-    const node = Map.prototype.get.call(this, label);
+  getKey(item) {
+    const node = Map.prototype.get.call(this, item);
     if (!node) return undefined;
 
     if (node instanceof AliasNode) {
@@ -47,74 +47,108 @@ class AliasMap extends Map {
       return node.value;
     }
 
-    return label;
+    return item;
   }
 
+
   /**
-   * @method getAliases Returns all aliases for provided label:
-   * key, alias or value
+   * Returns all aliases for provided item
    *
-   * @param {any} label
+   * @param {any} item Key, alias or value
    */
-  getAliases(label) {
-    const key = this.getKey(label);
-    return (typeof key !== 'undefined')
-      ? Map.prototype.get.call(this, key).aliases
+  getAliases(item) {
+    const key = this.getKey(item);
+    if (key == null) return undefined;
+
+    const keyNode = Map.prototype.get.call(this, key);
+    return (keyNode.aliases)
+      ? [...keyNode.aliases]
       : null;
   }
 
-  delete(label) {
-    const key = this.getKey(label);
-    if (typeof key === 'undefined') return false;
+
+  /* NOTE AliasMap inherits .has() method from Map */
+
+  /**
+   * Returns a boolean indicating whether provided key has alias
+   *
+   * @param {any} key Primary key
+   * @param {any} alias Alias to test for presence
+   */
+  hasAlias(key, alias) {
+    const aliasNode = Map.prototype.get.call(this, alias);
+    if (!(aliasNode instanceof AliasNode)) return false;
+
+    return aliasNode.aliasOf === key;
+  }
+
+
+  /**
+   * Deletes entry by provided item.
+   * Where entry is a primary key, value and all the aliases
+   *
+   * @param {any} item Key, alias or value
+   */
+  delete(item) {
+    const key = this.getKey(item);
+    if (key == null) return false;
 
     const { value, aliases } = Map.prototype.get.call(this, key);
 
+    // Delete all alias nodes
     aliases && aliases.forEach((alias) => {
       Map.prototype.delete.call(this, alias);
     });
+
+    // Delete value node
     Map.prototype.delete.call(this, value);
+
+    // Delete primary key node
     Map.prototype.delete.call(this, key);
 
     this.#entriesCount -= 1;
     return true;
   }
 
-  hasAlias(key, alias) {
-    const aliasNode = Map.prototype.get.call(this, alias);
-    if (typeof aliasNode === 'undefined' || !(aliasNode instanceof AliasNode)) return false;
 
-    return aliasNode.aliasOf === key;
-  }
+  /**
+   * Deletes alias from provided item
+   *
+   * @param {any} item Key, alias or value
+   * @param {any} alias Alias value to be deleted
+   */
+  deleteAlias(item, alias) {
+    const key = this.getKey(item);
+    if (key == null || !this.hasAlias(key, alias)) return false;
 
-  deleteAlias(label, alias) {
-    if (!this.hasAlias(label, alias)) return false;
-
-    const keyNode = Map.prototype.get.call(this, this.getKey(label));
-
+    const keyNode = Map.prototype.get.call(this, key);
     keyNode.removeAlias(alias);
+
     Map.prototype.delete.call(this, alias);
 
     return true;
   }
 
+
   /**
-   * @method set Sets key, value pair and optional aliases:
-   * key, alias or value
+   * Adds key, value and optional aliases to AlaisMap.
+   * If provided key already exists, updates key node
    *
-   * @param {any} key
-   * @param {any} value
-   * @param {...any} aliases
+   * @param {any} key Primary key
+   * @param {any} value Value for primary
+   * @param {...any} aliases List of aliases
    */
   set(key, value, ...aliases) {
-    if (typeof key === 'undefined' || typeof value === 'undefined') return undefined;
+    if (key == null || value == null) return undefined;
 
-    if (this.has(value) && Map.prototype.get.call(this, value).value !== key) {
+    if (this.has(value) && this.getKey(value) !== key) {
       throw Error('Cannot set value. Value is already in the AliasMap.');
     }
 
+    aliases = aliases.filter((alias) => alias != null);
     for (let i = 0; i < aliases.length; i += 1) {
-      if (this.has(aliases[i]) && Map.prototype.get.call(this, aliases[i]).aliasOf !== key) {
-        throw Error('Cannot set alias. Alias is already in the AliasMap.');
+      if (this.has(aliases[i]) && this.getKey(aliases[i]) !== key) {
+        throw Error('Cannot rewrite foreign alias.');
       }
     }
 
@@ -122,8 +156,12 @@ class AliasMap extends Map {
       const node = Map.prototype.get.call(this, key);
       if (!(node instanceof KeyNode)) throw Error('Cannot set key. Key must be of KeyNode type.');
 
+      if (this.hasAlias(key, value)) {
+        this.deleteAlias(key, value);
+      }
+
       if (node.aliases) {
-        aliases = [...new Set((aliases || []).concat(this.getAliases(key)))];
+        aliases = new Set(this.getAliases(key).concat(aliases || []));
       }
 
       this.delete(key);
@@ -139,19 +177,33 @@ class AliasMap extends Map {
     return this;
   }
 
-  setAlias(label, ...aliasList) {
-    if (typeof label === 'undefined' || !aliasList.length) return undefined;
 
-    const key = this.getKey(label);
+  /**
+   * Adds alias to primary key of provided item
+   *
+   * @param {any} item Key, alias or value
+   * @param  {...any} aliasList List of aliases to add
+   */
+  setAlias(item, ...aliasList) {
+    if (item == null || !aliasList.length) return undefined;
+
+    const key = this.getKey(item);
+    if (key == null) return undefined;
+
     const keyNode = Map.prototype.get.call(this, key);
     aliasList.forEach((alias) => {
       !this.hasAlias(key, alias)
         && keyNode.setAlias(alias)
         && Map.prototype.set.call(this, alias, new AliasNode(key, keyNode.value));
     });
+
     return this;
   }
 
+
+  /**
+   * Clears AliasMap
+   */
   clear() {
     this.#entriesCount = 0;
     return Map.prototype.clear.call(this);

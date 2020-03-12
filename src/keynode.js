@@ -1,43 +1,51 @@
 /**
- * @class KeyNode
+ * @class KeyNode Node class for AliasMap
  */
 class KeyNode {
+  /**
+   * @constructor
+   *
+   * @param {any} value Keynode value
+   * @param  {...any} aliases Keynode aliases
+   */
   constructor(value, ...aliases) {
     if (value == null) throw Error('Value cannot be undefined or null');
+    if (aliases.some((alias) => alias == null)) throw Error('Alais cannot be undefined or null');
 
     this.value = value;
-    this.aliases = aliases.length ? aliases : null;
+    this.aliases = aliases.length ? new Set(aliases) : null;
   }
+
 
   /**
-   * Adds aliases to the KeyNode
+   * @method setAlias Adds alias to the KeyNode
    *
-   * @param  {...string} aliases
+   * @param {any} alias
    */
   setAlias(alias) {
-    if (typeof alias === 'undefined') return undefined;
+    // Ignore undefined or null values
+    if (alias == null) return undefined;
 
-    this.aliases = (this.aliases || []).concat(alias);
-    return this.aliases;
+    if (!this.aliases) {
+      this.aliases = new Set();
+    }
+
+    return [...this.aliases.add(alias)];
   }
 
-  removeAlias(label) {
-    if (!this.aliases || typeof label === 'undefined') return false;
 
-    const aliases = [];
-    let found = false;
+  /**
+   * @method removeAlias Removes alias from the KeyNode
+   *
+   * @param {any} alias
+   */
+  removeAlias(alias) {
+    if (!this.aliases || alias == null) return false;
 
-    this.aliases.forEach((alias) => {
-      if (alias !== label) {
-        aliases.push(alias);
-      } else {
-        found = true;
-      }
-    });
+    const result = this.aliases.delete(alias);
+    if (!this.aliases.size) this.aliases = null;
 
-    this.aliases = aliases.length ? aliases : null;
-
-    return found;
+    return result;
   }
 }
 
