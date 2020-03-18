@@ -1,4 +1,4 @@
-import AliasMap from '../src/alias-map';
+import AliasMap from '../src/aliasmap';
 
 test('creating AliasMap class', () => {
   const aliasMap = new AliasMap();
