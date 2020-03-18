@@ -1,5 +1,5 @@
 # AliasMap
-AliasMap class from lost types series. Bi-directional map with support of aliases. Might be very good solution for indexing unique data.
+AliasMap class from lost types series. Bi-directional map with support of aliases. Might be a good solution for indexing unique data.
 
 ## Usage
 
@@ -12,6 +12,7 @@ In the terminal:
 
 Then in the module:
 ```js
+
 // JavaScript modules
 import AliasMap from '@lost-types/alias-map';
 
@@ -26,11 +27,11 @@ const aliasMap = new AliasMap();
 
 The idea came to me while working on Color type for the same series. I needed to map color names to their hexadecimal values and Map() sounded like a correct choice for the job. However, later I also needed to map hexadecimal values back to the names, and in addition to linear O(n) complexity of this task, colors also have aliases, for example both “grey” and “gray” result in one value which make the opposite task “stateful”, because you will have to determine which one is a primary key and which one is alias. All these resulted in AliasMap class with constant time bi-directional retrieval in the following way:
 
-**`AliasMap.get(*KEY*) -> *VALUE*`**
+**`AliasMap.get(KEY) -> VALUE`**
 
-**`AliasMap.get(*ALIAS*) -> *VALUE*`**
+**`AliasMap.get(ALIAS) -> VALUE`**
 
-**`AliasMap.get(*VALUE*) -> *KEY*`**
+**`AliasMap.get(VALUE) -> KEY`**
 
 ```js
 
@@ -57,7 +58,7 @@ Returns total Map size and number of connected entries made, where one entry is 
 const aliasMap = new AliasMap();
 
 const user = { userData: 'Might be stored here' };
-aliasMap.set('primary.email@example.com', user, 'secondary.email@gmail.com');
+aliasMap.set('primary.email@example.com', user, 'secondary.email@example.com');
 
 aliasMap.size; // 3
 aliasMap.entriesCount; // 1
@@ -109,7 +110,7 @@ Returns primary key for provided item. Item could be a key, value or any of alia
 const countries = new AliasMap();
 
 countries.set('United Kingdom', 'gb');
-countries.setAlias('gb', 'United Kingdom of Great Britain and Northern Ireland', 'UK', 'U.K.', 'Great Britain', 'Britain', 'GBR', 'England', 'Nothern Ireland', 'Scotland', 'Wales');
+countries.setAlias('gb', 'United Kingdom of Great Britain and Northern Ireland', 'UK', 'U.K.', 'Great Britain', 'Britain', 'GBR', 'England', 'Northern Ireland', 'Scotland', 'Wales');
 
 countries.getKey('gb'); // "United Kingdom"
 countries.getKey('Scotland'); // "United Kingdom"
@@ -122,7 +123,7 @@ countries.getKey('USA'); // undefined
 
 #### `AliasMap.prototype.getAliases()`
 
-Returns all aliases for provided item. Item could be a key, value or any of aliases. Returns `null` if no aliases are set.
+Returns all aliases for the provided item. Items could be a key, value or any of aliases. Returns `null` if no aliases are set.
 
 | **Parameter** | **Type** | **Default value** | **Notes**                      |
 |---------------|----------|-------------------|--------------------------------|
@@ -151,7 +152,7 @@ marvelUniverse.getAliases('Black Panther'); // null
 
 #### `AliasMap.prototype.has()`
 
-Returns boolean indicating whether provided item is in AliasMap. AliasMap inherits this method from [Map.prototype.has](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has).
+Returns a boolean indicating whether the provided item is in AliasMap. AliasMap inherits this method from [Map.prototype.has](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has).
 
 
 | **Parameter** | **Type** | **Default value** | **Notes**                      |
@@ -173,7 +174,7 @@ aliasMap.has('fuzz'); // false
 
 #### `AliasMap.prototype.hasAlias()`
 
-Returns boolean indicating whether provided primary key has provided alias. For performance reason, to achieve constant time retrieval, provided item has to be a key.
+Returns boolean indicating whether provided primary key has provided alias. For performance reasons, to achieve constant time retrieval, provided item has to be a key.
 
 
 | **Parameter** | **Type** | **Default value** | **Notes**                                   |
@@ -199,7 +200,7 @@ colors.getAliases('#ffff00').some((color) => color === 'aqua'); // true
 
 #### `AliasMap.prototype.set()`
 
-Adds key, value and optional aliases to AlaisMap. If provided key already exists, updates key node. Returns updated AliasMap.
+Adds key, value and optional aliases to AlaisMap. If the provided key already exists, update the key node. Returns updated AliasMap.
 
 | **Parameter**  | **Type**  | **Default value** | **Notes**                                        |
 |----------------|-----------|-------------------|--------------------------------------------------|
