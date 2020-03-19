@@ -11,6 +11,10 @@ const AliasMap = (() => {
       _entriesCount.set(this, 0);
     }
 
+    static get name() {
+      return 'AliasMap';
+    }
+
     /**
      * @property entriesCount: Number of entries made, where one entry is
      * a primary key, value and all the aliases associated with key
