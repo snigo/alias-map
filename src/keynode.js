@@ -16,6 +16,10 @@ class KeyNode {
     this.aliases = aliases.length ? new Set(aliases) : null;
   }
 
+  static get name() {
+    return 'KeyNode';
+  }
+
 
   /**
    * @method setAlias Adds alias to the KeyNode

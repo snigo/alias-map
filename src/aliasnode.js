@@ -15,6 +15,10 @@ class AliasNode {
     this.value = value;
     this.aliasOf = key;
   }
+
+  static get name() {
+    return 'AliasNode';
+  }
 }
 
 export default AliasNode;

@@ -12,6 +12,10 @@ class ValueNode {
 
     this.value = key;
   }
+
+  static get name() {
+    return 'ValueNode';
+  }
 }
 
 export default ValueNode;
